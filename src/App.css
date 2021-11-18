@@ -40,3 +40,9 @@ span.error {
   color: red;
   padding: 19px;
 }
+div {
+  display: grid;
+}
+h1 {
+  display: flex;
+}
