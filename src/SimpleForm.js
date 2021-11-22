@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import axios from 'axios';
-
+import { toppings } from './utils/topping';
 
 // Form validation part :
 
@@ -34,28 +34,13 @@ const validate = values => {
 
 // Component validation defined of Redux-form
 
-const TextInput = ({
-  input,
-  label,
-  type,
-  meta: { touched, error, warning }
-}) =>
+const TextInput = ({ input, label,type, meta: { touched, error, warning }}) =>
+  <div><label>{label}</label>
   <div>
-    <label>
-      {label}
-    </label>
-    <div>
-      <input {...input} placeholder={label} type={type} />
-      {touched &&
-        ((error &&
-          <span className="error">
-            {error}
-          </span>) ||
-          (warning &&
-            <span className="warning">
-              {warning}
-            </span>))}
-    </div>
+  <input {...input} placeholder={label} type={type} />
+  {touched &&((error && <span className="error">{error} </span>) || (warning &&
+  <span className="warning">{warning}</span>))}
+  </div>
   </div>
 
 // Redux Form submitting 
@@ -63,91 +48,117 @@ const TextInput = ({
 const Submit = async (values) => {
     let data = {
         user: {
-            type: values.type,
             firstName: values.firstName,
             lastName: values.lastName,
             email: values.email,
             password: values.password,
             gender: values.gender,
+            name: values.name,
         },
     }
-    console.log("data->>>>>",data);
-    axios
+  console.log("data->>>>>",data);
+  axios
       .post(`https://jsonplaceholder.typicode.com/users`, { data })
       .then(res => {
-        console.log("response->>>>>>>",res);
-        console.log("response-data->>>>>>>",res.data);
-      });
+      console.log("response->>>>>>>",res);
+      console.log("response-data->>>>>>>",res.data);
+    });
 }
 
-const SimpleForm = props => {
+
+  const SimpleForm = props => {
+
   const { handleSubmit, pristine, reset, submitting } = props
 
   // Return part of Jsx Element : 
 
-  return (
+return (
     <form onSubmit={handleSubmit((values) => Submit(values))}>
+    
     <div className="row">
-		<div className="col-md-6">
+         <Field
+            name="firstName"
+            type="text"
+            component={TextInput}
+            label="First Name"
+         />
+      </div>
+
+      <div className="row">
+            <Field
+              name="lastName"
+              type="text"
+              component={TextInput}
+              label="Last Name"
+          />
+      </div>
+
+      <div className="row">
       <Field
-        name="firstName"
-        type="text"
-        component={TextInput}
-        label="First Name"/>
-      </div>
-      </div>
-
-      <div className="row">
-	  <div className="col-md-6">
-      <Field
-        name="lastName"
-        type="text"
-        component={TextInput}
-        label="Last Name"/>
-      </div>
+             name="email"
+             type="email" 
+             component={TextInput} 
+             label="Email"
+         />
       </div>
 
       <div className="row">
-	    <div className="col-md-6">
-      <Field name="email" type="email" component={TextInput} label="Email" />
-      </div>
-      </div>
-
-      <div className="row">
-	    <div className="col-md-6">
-      <Field name="password" type="password" component={TextInput} label="Password" />
-      </div>
+      <Field 
+             name="password"
+             type="password" 
+             component={TextInput} 
+             label="Password"
+       />
       </div>
 
 
     <div className="row">
-    <div className="col-md-6">
       <label>Gender</label>
-    <div>
-    <label><Field name="gender" component="input" type="radio" value="male"/> Male</label>
-    <label><Field name="gender" component="input" type="radio" value="female"/> Female</label>
-    </div>
-    </div> 
+    <label>
+    <Field 
+           name="gender"
+           component="input"
+           type="radio" 
+           value="male"
+     /> Male
+    </label>
+    <label>
+    <Field name="gender"
+            component="input" 
+            type="radio"
+             value="female"
+     /> Female</label>
     </div>
 
     <div className="row">
-	  <div className="col-md-6">
     <label>Favorite Color</label>
-    <Field name="favoriteColor" component="select">
-    <option value="color">Select Favorite Color</option>
-    <option value="ff0000">Red</option>
-    <option value="00ff00">Green</option>
-    <option value="0000ff">Blue</option>
+    <Field
+        name="favoriteColor"
+        component="select">
+        <option value="color">Select Favorite Color</option>
+        <option value="ff0000">Red</option>
+        <option value="00ff00">Green</option>
+        <option value="0000ff">Blue</option>
     </Field>
     </div>
-    </div>
-    
-    <div>
-    <label>Checkbox</label>
-    <div>
-    <Field name="checkbox" id="checkbox" component="input" type="checkbox"/>
-    </div>
-    </div>
+    <div className="row">
+    <ul className="toppings-list">
+        {toppings.map(({ name }, index) => {
+          return (
+        <li key={index}>
+              <input
+                type="checkbox"
+                id={`custom-checkbox-${index}`}
+                name={name}
+                value={name}
+                component={TextInput}
+              />
+              <label htmlFor={`custom-checkbox-${index}`}>{name}</label>
+        </li>
+          );
+        })}
+      </ul>
+      </div>
 
     <button type="submit" disabled={submitting}>Submit</button>
     <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values </button>
@@ -156,6 +167,6 @@ const SimpleForm = props => {
 }
 
 export default reduxForm({
-  form: 'simple', 
-  validate, // form validation 
+      form: 'simple', 
+      validate, // form validation 
 })(SimpleForm)

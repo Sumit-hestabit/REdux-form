@@ -46,3 +46,26 @@ div {
 h1 {
   display: flex;
 }
+
+.toppings-list,
+.total {
+  width: 30%;
+  margin: 0 auto;
+}
+
+.toppings-list {
+  list-style: none;
+  padding: 0;
+}
+
+.toppings-list li {
+  margin-bottom: 0.5rem;
+}
+
+
+@media screen and (max-width: 600px) {
+  .toppings-list,
+  .total {
+    width: 90%;
+  }
+}
