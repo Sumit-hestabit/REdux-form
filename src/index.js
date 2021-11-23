@@ -4,17 +4,17 @@ import { Provider } from "react-redux";
 // import { Values } from "redux-form-website-template";
 import store from "./store";
 import showResults from "./showResults";
-import SimpleForm from "./SimpleForm";
 import "./App.css"; 
 import App from "./App";
+import RegisterPage from "./RegisterPage";
 const rootEl = document.getElementById("root");
 
 
 ReactDOM.render(
   <Provider store={store}>
     <div style={{ padding: 15 }}>
-      <h1>Registration Form</h1>
-      <SimpleForm onSubmit={showResults} />
+<RegisterPage/>
+      {/* <RegisterPage onSubmit={showResults} /> */}
       {/* <Values form="simple" /> */}
     </div>
   </Provider>,
