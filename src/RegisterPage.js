@@ -1,188 +1,174 @@
-import React from 'react'
-import { connect } from 'react-redux';
-import { Field, formValues, reduxForm } from 'redux-form';
-import { renderField } from './renderField';
+import React, { useEffect, useState } from 'react';
+import { Field, reduxForm } from 'redux-form';
+import axios from 'axios';
+import CheckboxGroup from './CheckboxGroup';
+import RadioGroup from './RadioGroup';
 
+// Form validation part :
 
-class RegisterPage extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            person: {
-                firstName: '',
-                lastName: '',
-                email: '',
-                password: '',
-                gender:'',
-                techsKnown:[],
-            },
-            techs : ["React","Javascript","Jquery","Angular","vue"],
-        };
+const validate = values => {
+  const errors = {}
+  if (!values.firstName) {
+    errors.firstName = 'Required First Name'
+  } else if (values.firstName.length > 15) {
+    errors.firstName = 'Must be 15 characters or less'
+  }
+  if (!values.lastName) {
+    errors.lastName = 'Required Last Name'
+  } else if (values.lastName.length > 15) {
+    errors.lastName = 'Must be 15 characters or less'
+  }
+  if (!values.email) {
+    errors.email = 'Required Email'
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    errors.email = 'Invalid email address'
+  }
+  if (!values.password) {
+    errors.password = 'Required password';
+  }
+  if (!values.favoriteColor) {
+    errors.favoriteColor = 'Choose the best colors ';
+  }
+  
+  if (!values.gender){
+    errors.gender = 'Required to Choose any one';
+  }
+  if (!values.techsKnown) {
+  errors.techsKnown = 'Please Select Any one.';
+  }
+  return errors
+  }
 
-        this.handleSubmit = this.handleSubmit.bind(this);
+const TextInput = ({ input, label,type, meta: { touched, error, warning }}) =>
+  <div><label>{label}</label>
+  <div>
+  <input {...input} placeholder={label} type={type} />
+  {touched &&((error && <span className="error">{error} </span>) || (warning &&
+  <span className="warning">{warning}</span>))}
+  </div>
+  </div>
+
+// Redux Form submitting 
+
+const Submit = async (values) => {
+    let data = {
+        user: {
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            password: values.password,
+            gender: values.gender,
+            checked:values.checked
+        },
     }
-
-    handleChange = (e) =>{
-        const {currentTarget:input} = e;
-        let s1 = {...this.state};
-        input.type === "checkbox" 
-        ? input.name === "techsKnown" ? this.updatePart(input.checked,input.value,s1.person.techsKnown)
-        : (s1.person[input.name] = input.checked) :
-          (s1.person[input.name] = input.value);
-        this.setState(s1);
-        console.log("data->>>>>",s1);
-     }
-
-     updatePart = (checked,value,arr) => {
-        if(checked) arr.push(value);
-        else{
-            let index = arr.findIndex(ele=>ele === value);
-            if(index>=0) arr.splice(index,1);
-        }
-        return arr;
-        };
-
-     handleSubmit = async (e) => {
-         e.preventDefault();
-         let s1 = {...this.state};
-        console.log(s1.person);
-    }
-
-    render () {
-        let {firstName,lastName,email,gender,password,techsKnown} = this.state.person;
-        const {techs} = this.state;
-        return (
-            <div className="col-md-6 col-md-offset-3">
-                <h2>Student Registration</h2>
-                <form onSubmit={this.handleSubmit} >
-                    <div className="form-group">
-                        <Field
-                            name="firstName"
-                            type="text"
-                            value="firstName"
-                            label="First Name"
-                            className="form-control"
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <Field
-                            name="lastName"
-                            type="text"
-                            value="lastName"
-                            label="Last Name"
-                            className="form-control"
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <Field
-                            name="email"
-                            type="text"
-                            value="email"
-                            label="Email"
-                            className="form-control"
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <Field
-                            name="password"
-                            type="password"
-                            value="password"
-                            label="Password"
-                            className="form-control"
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <Field
-                            name="gender"
-                            type="radio"
-                            value="male"
-                            className="form-control"
-                            checked={gender === "Male"}
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                         <label className="form-check-label">Male</label>
-                    </div>
-
-                    <div className="form-group">
-                        <Field
-                            name="gender"
-                            type="radio"
-                            className="form-control"
-                            checked={gender === "Female"}
-                            component={renderField}
-                            onChange={this.handleChange}
-                        />
-                         <label className="form-check-label">Female</label>
-                    </div>
-                    {
-                    techs.map(t1=>
-                    <div className="form-group">
-                        <input
-                            name="techsKnown"
-                            type="checkbox"
-                            value={t1}
-                            className="form-control"
-                            checked={techsKnown.findIndex(tech=>tech===t1)>=0}
-                            component={renderField}
-                            onChange={this.handleChange}
-                       />
-                         <label className="form-check-label">{t1}</label>
-                    </div>)
-                    }
-                    <button className="btn btn-primary" onClick={this.handleSubmit}>
-                    Submit
-                   </button>     
-                </form>
-            </div>
-        );
-    }
+   axios
+      .post(`https://jsonplaceholder.typicode.com/users`, { data })
+      .then(res => {
+      console.log("response->>>>>>>",res);
+      console.log("response-data->>>>>>>",res.data);
+    });
 }
 
-      const validate = values => {
-      const errors = {}
-      if (!values.firstName) {
-        errors.firstName = 'Required First Name'
-      } else if (values.firstName.length > 15) {
-        errors.firstName = 'Must be 15 characters or less'
-      }
-      if (!values.lastName) {
-        errors.lastName = 'Required Last Name'
-      } else if (values.lastName.length > 15) {
-        errors.lastName = 'Must be 15 characters or less'
-      }
-      if (!values.email) {
-        errors.email = 'Required Email'
-      } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-        errors.email = 'Invalid email address'
-      }
-      if (!values.password) {
-        errors.password = 'Required password';
-      }
-      if (!values.gender){
-        errors.gender = 'Required to Choose any one';
-    }
-    if (!values.techsKnown) {
-      errors.techsKnown = 'Please Select Any one.';
-    }
-      return errors
-    }
+const SimpleForm = props => { 
+const { handleSubmit, pristine, reset, submitting,options } = props
+// Return part of Jsx Element : 
 
+return (
+    <form onSubmit={handleSubmit((values) => Submit(values))}>
+    <div className="row">
+         <Field
+            name="firstName"
+            type="text"
+            component={TextInput}
+            label="First Name"
+         />
+      </div>
 
+      <div className="row">
+            <Field
+              name="lastName"
+              type="text"
+              component={TextInput}
+              label="Last Name"
+            />
+      </div>
+
+      <div className="row">
+      <Field
+             name="email"
+             type="email" 
+             component={TextInput} 
+             label="Email"
+         />
+      </div>
+
+      <div className="row">
+      <Field 
+             name="password"
+             type="password" 
+             component={TextInput} 
+             label="Password"
+       />
+      </div>
+
+     <Field
+           component={RadioGroup}
+           name="gender" 
+           required={true}
+           options={[
+           { title: 'Male', value: 'male' },
+           { title: 'Female', value: 'female' }
+      ]}
+       />
+
+    <div className="row">
+    <label>Favorite Color</label>
+    <Field
+           name="favoriteColor"
+           component="select">
+           <option value="color">Select Favorite Color</option>
+           <option value="ff0000">Red</option>
+           <option value="00ff00">Green</option>
+           <option value="0000ff">Blue</option>
+    </Field>
+    </div>
+   
+    <div className="form-group">
+     <Field
+          name="techsKnown"
+        options={[
+            {
+                name: 'Javascript',
+                id: 'one_day'
+            },
+            {
+                name: 'Angular',
+                id: 'two_day'
+            },
+            {
+                name: 'React js',
+                id: 'one_week'
+            },
+            {
+                name: 'vue js',
+                id: 'two_week'
+            },
+            {
+                name: 'PHP',
+                id: 'one_month'
+            },
+        ]}
+        component={CheckboxGroup}
+    />
+      <label className="form-check-label">{options}</label>
+       </div>
+
+    <button type="submit" disabled={submitting}>Submit</button>
+    <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values </button>
+    </form>
+  )
+}
 export default reduxForm({
       form: 'simple', 
       validate, // form validation 
-})(RegisterPage)
-
+})(SimpleForm)
